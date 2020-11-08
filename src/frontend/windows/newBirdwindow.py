@@ -8,12 +8,8 @@
 
 
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QStackedLayout, QHBoxLayout
-from PyQt5.uic.properties import QtGui
-
 from src.frontend.widgets.QGMapsLocatorWidget import QGMapsLocatorWidget
 from src.frontend.widgets.QHintCombo import QHintCombo
-from src.frontend.windows.newBirdwindow import AnotherWindow
 
 
 class MainWindow(object):
@@ -45,11 +41,8 @@ class MainWindow(object):
         self.specInput.setGeometry(10, 10, 180, 25)
 
         self.addspecButton = QtWidgets.QPushButton(text="I saw a bird!", parent=self.centralwidget)
-        self.addspecButton.clicked.connect(self.openNewBirdWindow)
         self.addspecButton.setGeometry(200, 10, 100, 25)
-        # self.addspecButton.setIcon(QIcon(QPixmap('./1.png')))
-        self.w = None
-
+        # self.addspecButton.setIcon(QIcon(QPixmap('./res/plus.png')))
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -58,7 +51,3 @@ class MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
 
-    def openNewBirdWindow(self):
-        if self.w is None:
-            self.w = AnotherWindow()
-        self.w.show()
