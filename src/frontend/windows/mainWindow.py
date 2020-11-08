@@ -8,9 +8,11 @@
 
 
 from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtGui import QPixmap
 
 from src.frontend.widgets.QGoogleMapsMarkerViewWidget import QGoogleMapsMarkerViewWidget
 from src.frontend.widgets.QHintCombo import QHintCombo
+from src.frontend.widgets.QtImageViewer import QImageviewer
 from src.frontend.windows.newBirdwindow import AnotherWindow
 
 
@@ -52,8 +54,11 @@ class MainWindow(object):
         self.addspecButton = QtWidgets.QPushButton(text="I saw a bird!", parent=self.centralwidget)
         self.addspecButton.clicked.connect(self.openNewBirdWindow)
         self.addspecButton.setGeometry(200, 10, 100, 25)
-        # self.addspecButton.setIcon(QIcon(QPixmap('./1.png')))
-        self.w = None
+
+        self.image = QImageviewer(parent=self)
+        self.image.setScaledContents(True)
+        self.image.setGeometry(275, 420, 250, 180)
+        self.image.hide()
 
 
         self.retranslateUi(MainWindow)
@@ -69,6 +74,12 @@ class MainWindow(object):
         self.w.show()
 
     def showBird(self, key, lat, lng):
-        # self.markerChosen.connect(print)
-        print('heeey')
+        # TODO: get bird data to show from DB
+        image = QPixmap('../res/img/bird_photos/bird_photo1.jpg')
+        self.image.setPixmap(image)
+        g = self.image.geometry()
+        g.setHeight(250.0 * image.height() / image.width())
+        self.image.setGeometry(g)
+        self.image.show(animation=False)
+        print(key)
         return
