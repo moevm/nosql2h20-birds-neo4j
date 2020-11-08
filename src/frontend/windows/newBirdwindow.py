@@ -6,28 +6,25 @@
 #
 # WARNING! All changes made in this file will be lost!
 
-
 from PyQt5 import QtCore
+from PyQt5.QtCore import QPropertyAnimation, QRect
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QWidget, QFileDialog, QPushButton
+from PyQt5.QtWidgets import QWidget, QFileDialog, QPushButton, QLabel, QMessageBox
 
 from src.frontend.widgets.QGMapsLocatorWidget import QGMapsLocatorWidget
 from src.frontend.widgets.QHintCombo import QHintCombo
+from src.frontend.widgets.QtImageViewer import QImageviewer
 
 
 class AnotherWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.title = 'New marker'
-        self.left = 10
-        self.top = 10
-        self.width = 800
-        self.height = 620
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
+        self.setGeometry(10, 10, 800, 620)
 
         API_KEY = "AIzaSyD1VkY2p8-r3zH_wrpMk6xkPWc6dweaThM+"
         birdsMap = QGMapsLocatorWidget(api_key=API_KEY, parent=self)
@@ -47,9 +44,33 @@ class AnotherWindow(QWidget):
         self.picBtn.clicked.connect(self.getfile)
         self.picBtn.setGeometry(200, 10, 25, 25)
 
+        self.okBtn = QPushButton(icon=QIcon(QPixmap('../res/img/ok_icon.jpg')), parent=self)
+        self.okBtn.clicked.connect(self.addBird)
+        self.okBtn.setGeometry(235, 10, 25, 25)
+
+        self.image = QImageviewer(parent=self)
+        self.image.setScaledContents(True)
+        self.image.setGeometry(10, 45, 250, 180)
+        self.image.hide()
+
         self.show()
 
     def getfile(self):
-        fname = QFileDialog.getOpenFileName(self, 'Open file'
-                                            , filter="Image files (*.jpg *.gif *.png *.bmp)")
-        self.le.setPixmap(QPixmap(fname))
+        fname, err = QFileDialog.getOpenFileName(self, 'Open file', filter="Image files (*.jpg *.gif *.png *.bmp)")
+        image = QPixmap(fname)
+        self.image.setPixmap(image)
+        g = self.image.geometry()
+        g.setHeight(250.0 * image.height() / image.width())
+        self.image.setGeometry(g)
+        self.image.show(animation=True)
+
+    def addBird(self):
+        msg = QMessageBox()
+        # msg.setWindowIcon(QIcon(QPixmap('../res/img/success_icon.png')))
+        msg.setText("bird marker added!")
+        msg.setWindowTitle("Success!")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
+        self.image.hide()
+        return
+
