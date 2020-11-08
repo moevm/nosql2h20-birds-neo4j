@@ -15,6 +15,13 @@ from src.frontend.widgets.QHintCombo import QHintCombo
 from src.frontend.widgets.QtImageViewer import QImageviewer
 from src.frontend.windows.newBirdwindow import AnotherWindow
 
+# demo thing:
+mass1 = [['1', 60.010400, 30.416168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
+         ['2', 60.010536, 30.412821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
+         ['3', 60.010600, 30.410000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
+mass2 = [['1', 60.012400, 30.420168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
+         ['2', 60.011536, 30.419821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
+         ['3', 60.011600, 30.414000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
 
 class MainWindow(object):
     def setupUi(self, MainWindow):
@@ -27,9 +34,6 @@ class MainWindow(object):
         self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
-        # self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        # self.statusbar.setObjectName("statusbar")
-        # MainWindow.setStatusBar(self.statusbar)
 
         API_KEY = "AIzaSyD1VkY2p8-r3zH_wrpMk6xkPWc6dweaThM+"
         self.birdsMap = QGoogleMapsMarkerViewWidget(api_key=API_KEY, parent=self.centralwidget)
@@ -43,13 +47,11 @@ class MainWindow(object):
         self.birdsMap.markerClicked.connect(self.showBird)
 
         # demo thing:
-        mass = [['1', 60.010400, 30.416168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-                ['2', 60.010536, 30.412821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-                ['3', 60.010600, 30.410000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
-        self.birdsMap.showMarkers(mass)
+        self.birdsMap.showMarkers(mass1)
 
         self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self.centralwidget)
         self.specInput.setGeometry(10, 10, 180, 25)
+        self.specInput.currentIndexChanged.connect(self.chooseSpec)
 
         self.addspecButton = QtWidgets.QPushButton(text="I saw a bird!", parent=self.centralwidget)
         self.addspecButton.clicked.connect(self.openNewBirdWindow)
@@ -60,6 +62,7 @@ class MainWindow(object):
         self.image.setGeometry(275, 420, 250, 180)
         self.image.hide()
 
+        self.secondWindow = None
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -69,9 +72,9 @@ class MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
 
     def openNewBirdWindow(self):
-        if self.w is None:
-            self.w = AnotherWindow()
-        self.w.show()
+        if self.secondWindow is None:
+            self.secondWindow = AnotherWindow()
+        self.secondWindow.show()
 
     def showBird(self, key, lat, lng):
         # TODO: get bird data to show from DB
@@ -83,3 +86,8 @@ class MainWindow(object):
         self.image.show(animation=False)
         print(key)
         return
+
+    def chooseSpec(self, index):
+        mass = [mass1, mass2]
+        self.birdsMap.showMarkers(mass[index % 2])
+        print('hi')
