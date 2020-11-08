@@ -38,6 +38,7 @@ class MainWindow(object):
         if lat is None and lng is None:
             lat, lng = 60.010297, 30.418990
             self.birdsMap.centerAt(lat, lng)
+        self.birdsMap.markerClicked.connect(self.showBird)
 
         # demo thing:
         mass = [['1', 60.010400, 30.416168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
@@ -66,3 +67,8 @@ class MainWindow(object):
         if self.w is None:
             self.w = AnotherWindow()
         self.w.show()
+
+    def showBird(self, key, lat, lng):
+        # self.markerChosen.connect(print)
+        print('heeey')
+        return
