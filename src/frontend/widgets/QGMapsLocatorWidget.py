@@ -6,10 +6,12 @@ class QGMapsLocatorWidget(QGoogleMap):
     # Web mercator coords (WGS 84 proj or something):
     lat = None
     lang = None
+    mass = None
 
     def __init__(self, api_key, parent=None):
         super(QGMapsLocatorWidget, self).__init__(api_key, parent)
         self.mapClicked.connect(self.setUpMarker)
+
 
     def setUpMarker(self, lat, lang):
         if not self.markerLabel:
@@ -25,6 +27,15 @@ class QGMapsLocatorWidget(QGoogleMap):
                 icon="http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png",
                 draggable=True,
                 title=self.markerLabel
+            ))
+
+    def showMarkers(self, mass):
+        for i, _ in enumerate(mass):
+            markerLabel=mass[i][0]
+            self.addMarker(markerLabel, mass[i][1], mass[i][2], **dict(
+                icon=mass[i][3],
+                draggable=True,
+                title=markerLabel
             ))
 
     def getLocation(self):

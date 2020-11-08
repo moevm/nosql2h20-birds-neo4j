@@ -8,10 +8,8 @@
 
 
 from PyQt5 import QtCore, QtWidgets
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QStackedLayout, QHBoxLayout
-from PyQt5.uic.properties import QtGui
 
-from src.frontend.widgets.QGMapsLocatorWidget import QGMapsLocatorWidget
+from src.frontend.widgets.QGoogleMapsMarkerViewWidget import QGoogleMapsMarkerViewWidget
 from src.frontend.widgets.QHintCombo import QHintCombo
 from src.frontend.windows.newBirdwindow import AnotherWindow
 
@@ -32,7 +30,7 @@ class MainWindow(object):
         # MainWindow.setStatusBar(self.statusbar)
 
         API_KEY = "AIzaSyD1VkY2p8-r3zH_wrpMk6xkPWc6dweaThM+"
-        self.birdsMap = QGMapsLocatorWidget(api_key=API_KEY, parent=self.centralwidget)
+        self.birdsMap = QGoogleMapsMarkerViewWidget(api_key=API_KEY, parent=self.centralwidget)
         self.birdsMap.setGeometry(QtCore.QRect(0, 0, 800, 620))
         self.birdsMap.waitUntilReady()
         self.birdsMap.setZoom(14)
@@ -40,6 +38,12 @@ class MainWindow(object):
         if lat is None and lng is None:
             lat, lng = 60.010297, 30.418990
             self.birdsMap.centerAt(lat, lng)
+
+        # demo thing:
+        mass = [['1', 60.010400, 30.416168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
+                ['2', 60.010536, 30.412821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
+                ['3', 60.010600, 30.410000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
+        self.birdsMap.showMarkers(mass)
 
         self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self.centralwidget)
         self.specInput.setGeometry(10, 10, 180, 25)
