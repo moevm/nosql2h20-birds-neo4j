@@ -7,47 +7,49 @@
 # WARNING! All changes made in this file will be lost!
 
 
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtCore
+from PyQt5.QtGui import QPixmap, QIcon
+from PyQt5.QtWidgets import QWidget, QFileDialog, QPushButton
+
 from src.frontend.widgets.QGMapsLocatorWidget import QGMapsLocatorWidget
 from src.frontend.widgets.QHintCombo import QHintCombo
 
 
-class MainWindow(object):
-    def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 620)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
-        self.centralwidget.setObjectName("centralwidget")
-        MainWindow.setCentralWidget(self.centralwidget)
-        self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 800, 22))
-        self.menubar.setObjectName("menubar")
-        MainWindow.setMenuBar(self.menubar)
-        # self.statusbar = QtWidgets.QStatusBar(MainWindow)
-        # self.statusbar.setObjectName("statusbar")
-        # MainWindow.setStatusBar(self.statusbar)
+class AnotherWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.title = 'New marker'
+        self.left = 10
+        self.top = 10
+        self.width = 800
+        self.height = 620
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle(self.title)
+        self.setGeometry(self.left, self.top, self.width, self.height)
 
         API_KEY = "AIzaSyD1VkY2p8-r3zH_wrpMk6xkPWc6dweaThM+"
-        self.birdsMap = QGMapsLocatorWidget(api_key=API_KEY, parent=self.centralwidget)
-        self.birdsMap.setGeometry(QtCore.QRect(0, 0, 800, 620))
-        self.birdsMap.waitUntilReady()
-        self.birdsMap.setZoom(14)
-        lat, lng = self.birdsMap.centerAtAddress("Russia")
+        birdsMap = QGMapsLocatorWidget(api_key=API_KEY, parent=self)
+        birdsMap.setGeometry(QtCore.QRect(0, 0, 800, 620))
+        birdsMap.waitUntilReady()
+        birdsMap.setZoom(14)
+        lat, lng = birdsMap.centerAtAddress("Russia")
         if lat is None and lng is None:
             lat, lng = 60.010297, 30.418990
-            self.birdsMap.centerAt(lat, lng)
+            birdsMap.centerAt(lat, lng)
+        birdsMap.move(0, 0)
 
-        self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self.centralwidget)
+        self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self)
         self.specInput.setGeometry(10, 10, 180, 25)
 
-        self.addspecButton = QtWidgets.QPushButton(text="I saw a bird!", parent=self.centralwidget)
-        self.addspecButton.setGeometry(200, 10, 100, 25)
-        # self.addspecButton.setIcon(QIcon(QPixmap('./res/plus.png')))
+        self.picBtn = QPushButton(icon=QIcon(QPixmap('../res/img/add_photo_icon.png')), parent=self)
+        self.picBtn.clicked.connect(self.getfile)
+        self.picBtn.setGeometry(200, 10, 25, 25)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.show()
 
-    def retranslateUi(self, MainWindow):
-        _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-
+    def getfile(self):
+        fname = QFileDialog.getOpenFileName(self, 'Open file'
+                                            , filter="Image files (*.jpg *.gif *.png *.bmp)")
+        self.le.setPixmap(QPixmap(fname))
