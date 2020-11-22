@@ -16,7 +16,7 @@ class DatabaseWindow(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.title = 'Database'
+        self.title = 'Statistics/management'
         self.initUI()
 
     def initUI(self):
@@ -33,13 +33,13 @@ class DatabaseWindow(QWidget):
         self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self)
         self.specInput.setGeometry(10, 550, 180, 25)
 
-        self.axisLabel = QLabel("Ось 'X':", parent=self)
+        self.axisLabel = QLabel("Axis 'X':", parent=self)
         self.axisLabel.setGeometry(200, 550, 50, 25)
-        self.b1 = QRadioButton("Широта", parent=self)
+        self.b1 = QRadioButton("Latitude", parent=self)
         self.b1.setGeometry(260, 550, 100, 25)
         self.b1.toggled.connect(lambda: self.btnstate(self.b1))
         self.b1.setChecked(True)
-        self.b2 = QRadioButton("Долгота", parent=self)
+        self.b2 = QRadioButton("Longitude", parent=self)
         self.b2.setGeometry(260, 575, 100, 25)
         self.b2.toggled.connect(lambda: self.btnstate(self.b2))
 
