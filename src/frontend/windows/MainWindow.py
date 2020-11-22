@@ -14,7 +14,7 @@ from src.frontend.widgets.QGoogleMapsMarkerViewWidget import QGoogleMapsMarkerVi
 from src.frontend.widgets.QHintCombo import QHintCombo
 from src.frontend.widgets.QtImageViewer import QImageviewer
 from src.frontend.windows.DatabaseWindow import DatabaseWindow
-from src.frontend.windows.newBirdwindow import AnotherWindow
+from src.frontend.windows.NewBirdwindow import NewBirdwindow
 
 # demo thing:
 mass1 = [['1', 60.010400, 30.416168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
@@ -54,7 +54,7 @@ class MainWindow(object):
         # demo thing:
         self.birdsMap.showMarkers(mass1)
 
-        self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self.centralwidget)
+        self.specInput = QHintCombo(items=self.databaseConnector.getSpecies(), parent=self.centralwidget)
         self.specInput.setGeometry(10, 10, 180, 25)
         self.specInput.currentIndexChanged.connect(self.chooseSpec)
 
@@ -82,7 +82,7 @@ class MainWindow(object):
 
     def openNewBirdWindow(self):
         if self.secondWindow is None:
-            self.secondWindow = AnotherWindow()
+            self.secondWindow = NewBirdwindow()
         self.secondWindow.show()
 
     def openDatabaseWindow(self):

@@ -1,7 +1,7 @@
 from neo4j import GraphDatabase
 
 
-class HelloWorldExample:
+class DatabaseConnector:
 
     def __init__(self, uri, user, password):
         self.driver = GraphDatabase.driver(uri, auth=(user, password))
@@ -47,7 +47,7 @@ class HelloWorldExample:
 
 
 if __name__ == "__main__":
-    greeter = HelloWorldExample("bolt://localhost:7687", "neo4j", "password")
+    greeter = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
     # greeter.print_greeting("hello, world")
     print(greeter.getSpecies())
     greeter.close()

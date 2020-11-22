@@ -1,12 +1,14 @@
 import sys
 from PyQt5 import QtWidgets
 
-from src.frontend.windows import mainWindow
+from src.backend.DatabaseConnector import DatabaseConnector
+from src.frontend.windows import MainWindow
 
 
-class ExampleApp(QtWidgets.QMainWindow, mainWindow.MainWindow):
+class ExampleApp(QtWidgets.QMainWindow, MainWindow.MainWindow):
     def __init__(self):
         super().__init__()
+        self.databaseConnector = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
         self.setupUi(self)
 
 

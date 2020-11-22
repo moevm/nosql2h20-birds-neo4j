@@ -2,7 +2,7 @@ import sys
 
 from PyQt5 import QtCore, QtWidgets
 
-from src.backend.back import HelloWorldExample
+from src.backend.DatabaseConnector import DatabaseConnector
 
 
 class MainWindow(object):
@@ -32,7 +32,7 @@ class MainWindow(object):
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
 
     def helloClicked(self):
-        greeter = HelloWorldExample("bolt://localhost:7687", "neo4j", "password")
+        greeter = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
         greeter.print_greeting("hello, world")
         greeter.close()
 

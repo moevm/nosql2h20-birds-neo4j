@@ -15,7 +15,7 @@ from src.frontend.widgets.QHintCombo import QHintCombo
 from src.frontend.widgets.QtImageViewer import QImageviewer
 
 
-class AnotherWindow(QWidget):
+class NewBirdwindow(QWidget):
     def __init__(self):
         super().__init__()
         self.title = 'New marker'
