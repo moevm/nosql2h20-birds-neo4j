@@ -16,5 +16,6 @@ class DatabaseWindow(QWidget):
         self.setGeometry(10, 10, 800, 620)
 
         self.plotWidget = MplWidget(self, width=5, height=4, dpi=100)
+        self.plotWidget.setGeometry(0, 0, 800, 620)
         # demo thing:
         self.plotWidget.canvas.axes.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40])
