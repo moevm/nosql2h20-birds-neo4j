@@ -27,6 +27,8 @@ class DatabaseWindow(QWidget):
         self.plotWidget.setGeometry(0, 0, 800, 550)
         # demo thing:
         self.plotWidget.canvas.axes.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40])
+        self.plotWidget.canvas.axes.set_xlabel('Latitude')
+        self.plotWidget.canvas.axes.set_ylabel('Count')
 
         self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self)
         self.specInput.setGeometry(10, 550, 180, 25)
