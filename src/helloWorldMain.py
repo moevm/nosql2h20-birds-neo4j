@@ -37,7 +37,6 @@ class MainWindow(object):
         greeter.close()
 
 
-
 class ExampleApp(QtWidgets.QMainWindow, MainWindow):
     def __init__(self):
         super().__init__()
@@ -53,4 +52,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
