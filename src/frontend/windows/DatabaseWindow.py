@@ -19,6 +19,8 @@ class DatabaseWindow(QWidget):
         self.plotWidget.setGeometry(0, 0, 800, 620)
         # demo thing:
         self.plotWidget.canvas.axes.plot([0, 1, 2, 3, 4], [10, 1, 20, 3, 40])
+        self.plotWidget.canvas.axes.set_xlabel('Latitude')
+        self.plotWidget.canvas.axes.set_ylabel('Count')
 
         self.importdbButton = QtWidgets.QPushButton(text="Import DB", parent=self)
         self.importdbButton.setGeometry(600, 10, 100, 25)
