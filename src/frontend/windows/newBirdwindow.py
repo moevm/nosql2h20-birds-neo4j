@@ -7,9 +7,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore
-from PyQt5.QtCore import QPropertyAnimation, QRect
 from PyQt5.QtGui import QPixmap, QIcon
-from PyQt5.QtWidgets import QWidget, QFileDialog, QPushButton, QLabel, QMessageBox
+from PyQt5.QtWidgets import QWidget, QFileDialog, QPushButton, QMessageBox
 
 from src.frontend.widgets.QGMapsLocatorWidget import QGMapsLocatorWidget
 from src.frontend.widgets.QHintCombo import QHintCombo
