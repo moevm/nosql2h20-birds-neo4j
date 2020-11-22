@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QRadioButton, QLabel
+from PyQt5.QtWidgets import QWidget, QRadioButton, QLabel, QFileDialog, QMessageBox
 from src.frontend.widgets.MplWidget import MplWidget
 from PyQt5 import QtWidgets
 
@@ -45,9 +45,11 @@ class DatabaseWindow(QWidget):
 
         self.importDbButton = QtWidgets.QPushButton(text="Import DB", parent=self)
         self.importDbButton.setGeometry(580, 550, 100, 25)
+        self.importDbButton.clicked.connect(self.importDatabase)
 
         self.exportDbButton = QtWidgets.QPushButton(text="Export DB", parent=self)
         self.exportDbButton.setGeometry(690, 550, 100, 25)
+        self.exportDbButton.clicked.connect(self.exportDatabase)
 
     def btnstate(self, b):
         if b.isChecked():
@@ -56,3 +58,18 @@ class DatabaseWindow(QWidget):
         else:
             print
             b.text() + " is deselected"
+
+    def importDatabase(self):
+        fname, err = QFileDialog.getOpenFileName(self, 'Open file', filter="Database files")
+        # TODO: open database for real
+        # TODO: handle troubles
+
+    def exportDatabase(self):
+        fname, err = QFileDialog.getSaveFileName(self, 'Save file', filter="Database files")
+        # TODO: save database
+        # TODO: handle troubles
+        msg = QMessageBox()
+        msg.setText("Database saved!")
+        msg.setWindowTitle("Success!")
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec_()
