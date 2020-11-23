@@ -13,7 +13,8 @@ from PyQt5.QtGui import QPixmap
 from src.frontend.widgets.QGoogleMapsMarkerViewWidget import QGoogleMapsMarkerViewWidget
 from src.frontend.widgets.QHintCombo import QHintCombo
 from src.frontend.widgets.QtImageViewer import QImageviewer
-from src.frontend.windows.newBirdwindow import AnotherWindow
+from src.frontend.windows.DatabaseWindow import DatabaseWindow
+from src.frontend.windows.NewBirdwindow import NewBirdwindow
 
 # demo thing:
 mass1 = [['1', 60.010400, 30.416168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
@@ -23,7 +24,11 @@ mass2 = [['1', 60.012400, 30.420168, "http://maps.gstatic.com/mapfiles/ridefinde
          ['2', 60.011536, 30.419821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
          ['3', 60.011600, 30.414000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
 
+
 class MainWindow(object):
+    dbWindow = None
+    secondWindow = None
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(800, 620)
@@ -49,13 +54,17 @@ class MainWindow(object):
         # demo thing:
         self.birdsMap.showMarkers(mass1)
 
-        self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self.centralwidget)
+        self.specInput = QHintCombo(items=self.databaseConnector.getSpecies(), parent=self.centralwidget)
         self.specInput.setGeometry(10, 10, 180, 25)
         self.specInput.currentIndexChanged.connect(self.chooseSpec)
 
         self.addspecButton = QtWidgets.QPushButton(text="I saw a bird!", parent=self.centralwidget)
         self.addspecButton.clicked.connect(self.openNewBirdWindow)
         self.addspecButton.setGeometry(200, 10, 100, 25)
+
+        self.showStatsButton = QtWidgets.QPushButton(text="Database...", parent=self.centralwidget)
+        self.showStatsButton.clicked.connect(self.openDatabaseWindow)
+        self.showStatsButton.setGeometry(690, 10, 100, 25)
 
         self.image = QImageviewer(parent=self)
         self.image.setScaledContents(True)
@@ -73,8 +82,13 @@ class MainWindow(object):
 
     def openNewBirdWindow(self):
         if self.secondWindow is None:
-            self.secondWindow = AnotherWindow()
+            self.secondWindow = NewBirdwindow()
         self.secondWindow.show()
+
+    def openDatabaseWindow(self):
+        if self.dbWindow is None:
+            self.dbWindow = DatabaseWindow()
+        self.dbWindow.show()
 
     def showBird(self, key, lat, lng):
         # TODO: get bird data to show from DB
