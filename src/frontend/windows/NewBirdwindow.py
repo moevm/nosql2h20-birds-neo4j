@@ -10,9 +10,9 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import QPixmap, QIcon
 from PyQt5.QtWidgets import QWidget, QFileDialog, QPushButton, QMessageBox
 
-from frontend.widgets.QGMapsLocatorWidget import QGMapsLocatorWidget
-from frontend.widgets.QHintCombo import QHintCombo
-from frontend.widgets.QtImageViewer import QImageviewer
+from src.frontend.widgets.QGMapsLocatorWidget import QGMapsLocatorWidget
+from src.frontend.widgets.QHintCombo import QHintCombo
+from src.frontend.widgets.QtImageViewer import QImageviewer
 
 
 class NewBirdwindow(QWidget):

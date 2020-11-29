@@ -10,11 +10,11 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QPixmap
 
-from frontend.widgets.QGoogleMapsMarkerViewWidget import QGoogleMapsMarkerViewWidget
-from frontend.widgets.QHintCombo import QHintCombo
-from frontend.widgets.QtImageViewer import QImageviewer
-from frontend.windows.DatabaseWindow import DatabaseWindow
-from frontend.windows.NewBirdwindow import NewBirdwindow
+from src.frontend.widgets.QGoogleMapsMarkerViewWidget import QGoogleMapsMarkerViewWidget
+from src.frontend.widgets.QHintCombo import QHintCombo
+from src.frontend.widgets.QtImageViewer import QImageviewer
+from src.frontend.windows.DatabaseWindow import DatabaseWindow
+from src.frontend.windows.NewBirdwindow import NewBirdwindow
 
 # demo thing:
 mass1 = [['1', 60.010400, 30.416168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],

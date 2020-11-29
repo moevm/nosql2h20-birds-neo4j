@@ -22,6 +22,7 @@ class DatabaseConnector:
         with self.driver.session() as session:
             result = session.write_transaction(self._create_species, name)
 
+    # That returns greeting message
     @staticmethod
     def _create_and_return_greeting(tx, message):
         result = tx.run("CREATE (a:Greeting) "
@@ -32,17 +33,23 @@ class DatabaseConnector:
     # That returns a list of all the species represented
     @staticmethod
     def _get_all_species(tx):
-        req = '''MATCH (n:Species)
+        req = '''MATCH (n:Kind)
                  RETURN n.name as name'''
         result = tx.run(req)  # A dictionary or something
         return [record["name"] for record in result]  # Make namelist of it
 
+    # Create bird's kind
     @staticmethod
     def _create_species(tx, name):
-        req = '''CREATE (a:Species)
+        req = '''MATCH (a:Kind)
                  SET a.name = $name '''
         result = tx.run(req, name=name)
         return result.single()
+
+
+
+
+
 
 
 if __name__ == "__main__":

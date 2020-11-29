@@ -1,4 +1,4 @@
-from frontend.widgets.QGoogleMapsWidget.QGoogleMapsWidget import QGoogleMap
+from src.frontend.widgets.QGoogleMapsWidget.QGoogleMapsWidget import QGoogleMap
 
 
 class QGoogleMapsMarkerViewWidget(QGoogleMap):
