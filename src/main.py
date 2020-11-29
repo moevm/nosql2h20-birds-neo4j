@@ -1,14 +1,20 @@
 import sys
+
 from PyQt5 import QtWidgets
 
-from src.backend.DatabaseConnector import DatabaseConnector
-from src.frontend.windows import MainWindow
+from backend.DatabaseConnector import DatabaseConnector
+from frontend.windows import MainWindow
 
 
 class ExampleApp(QtWidgets.QMainWindow, MainWindow.MainWindow):
+    HOST = 'neo4j'  # Gotta use database container name as host
+    PORT = '7687'   # 7687 for bolt, 7474 for http, 7473 for https
+    NAME = 'neo4j'  # Authorization
+    PASSWORD = 'password'  # Authorization
+
     def __init__(self):
         super().__init__()
-        self.databaseConnector = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
+        self.databaseConnector = DatabaseConnector("bolt://{}:{}".format(self.HOST, self.PORT), self.NAME, self.PASSWORD)
         self.setupUi(self)
 
 
