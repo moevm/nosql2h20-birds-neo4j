@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QRadioButton, QLabel, QFileDialog, QMessageBox
-from src.frontend.widgets.MplWidget import MplWidget
+from frontend.widgets.MplWidget import MplWidget
 from PyQt5 import QtWidgets
 
-from src.frontend.widgets.QHintCombo import QHintCombo
+from frontend.widgets.QHintCombo import QHintCombo
 
 
 class DatabaseWindow(QWidget):
