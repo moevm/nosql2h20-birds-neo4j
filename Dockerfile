@@ -18,9 +18,3 @@ RUN pip3 install PyQt5==5.15 PyQtWebEngine matplotlib neo4j
 RUN apt-get install -y libnss3
 RUN apt-get install -y libasound2-dev
 RUN pip3 install idna
-# export needed cuz import is gonna search for modules in /src/ otherwise
-#RUN export PYTHONPATH=/app
-#RUN export PATH=/app
-#RUN export PYTHONUNBUFFERED=1
-
-#EXPOSE 7687
