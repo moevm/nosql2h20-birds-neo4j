@@ -14,7 +14,7 @@ RUN apt-get update
 RUN DEBIAN_FRONTEND="noninteractive" apt-get install tzdata
 # installing python3-pyqt5 instead of python3 prevents us from manually installing lots of related libs
 RUN apt-get install  -y python3-pyqt5 python3-pip
-RUN pip3 install PyQt5 PyQtWebEngine matplotlib neo4j
+RUN pip3 install PyQt5==5.15 PyQtWebEngine matplotlib neo4j
 RUN apt-get install -y libnss3
 RUN apt-get install -y libasound2-dev
 RUN pip3 install idna
