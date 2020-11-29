@@ -1,7 +1,5 @@
 FROM ubuntu:20.04
 
-MAINTAINER jozo <hi@jozo.io>
-
 WORKDIR /birdwather_app
 # Add user
 RUN adduser --quiet --disabled-password qtuser
