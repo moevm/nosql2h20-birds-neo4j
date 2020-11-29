@@ -46,14 +46,21 @@ class DatabaseConnector:
         result = tx.run(req, name=name)
         return result.single()
 
-    # Select all birds by kind
+    # Get id's of all birds by its kind
     @staticmethod
     def _select_by_kind(tx, kind):
         req = '''MATCH (id:Bird)-[:is]->(Kind {name: $kind})
                  RETURN id'''
-        result = tx.run(req)
+        result = tx.run(req, kind=kind)
         return [record["id"] for record in result]
 
+    # Get the bird by id
+    @staticmethod
+    def _select_by_id(tx, id):
+        req = '''MATCH (a:Bird {Bird_id: $id})
+                 RETURN a'''
+        result = tx.run(req, id=id)
+        return result.single()
 
 
 
