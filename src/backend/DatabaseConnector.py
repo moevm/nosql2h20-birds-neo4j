@@ -62,6 +62,16 @@ class DatabaseConnector:
         result = tx.run(req, id=id)
         return result.single()
 
+    # Get all of these flying creatures
+    @staticmethod
+    def _select_all(tx):
+        req = '''MATCH (a:Bird)
+                 RETURN a'''
+        result = tx.run(req)
+        return result
+
+
+
 
 
 
