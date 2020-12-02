@@ -18,6 +18,7 @@ class DatabaseConnector:
         with self.driver.session() as session:
             area = session.write_transaction(self._get_birds_area, kind)
             print(area)
+        return area
 
     def create_bird(self, id__, url, name, latitude, longitude):
         with self.driver.session() as session:
@@ -103,9 +104,9 @@ class DatabaseConnector:
         req = '''MATCH (a:Bird)-[:Found_at]->(b:Place)
                  MATCH (:Bird)-[:Is]->(c:Kind)
                  WHERE (a)-[:Is]->(c) AND c.name = $kind
-                 RETURN a, b'''
+                 RETURN b'''
         result = tx.run(req, kind=kind)
-        return result.values()
+        return [{'latitude':place['latitude'], 'longitude':place['longitude']} for place in result.values()[0]] # [rec['latitude'] for rec in result]
 
     # WHERE a = $kind
 
