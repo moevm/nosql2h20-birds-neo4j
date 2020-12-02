@@ -62,16 +62,13 @@ class DatabaseWindow(QWidget):
 
     def importDatabase(self):
         # fname, err = QFileDialog.getOpenFileName(self, 'Open file', filter="Database files")
-        try:
-            self.databaseConnector.setCsv()
-        except:
-            exit(228)
+        self.databaseConnector.setCsv()
         # TODO: open database for real
         # TODO: handle troubles
 
     def exportDatabase(self):
         fname, err = QFileDialog.getSaveFileName(self, 'Save file', filter="CSV (*.csv)")
-        data = self.databaseConnector.getCsv();
+        data = self.databaseConnector.getCsv()
         f = open(fname, 'w', encoding='utf-8')
         f.write(str(data))
         f.close()

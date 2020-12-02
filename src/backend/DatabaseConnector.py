@@ -61,17 +61,14 @@ class DatabaseConnector:
             YIELD data
             RETURN data;
         '''
-
-        # req = '''
-        #     CALL apoc.export.csv.all(null, {stream:true})
-        #     YIELD file, nodes, relationships, properties, data
-        #     RETURN file, nodes, relationships, properties, data
-        # '''
         result = tx.run(req)
         return result.single()
 
     @staticmethod
     def _import(tx):
+        # That is a proto. In real life it must be as much requests and files as there are node types
+        # TODO: make requests for every node type
+        # TODO: format the request string with export file name
         req = '''
             load csv with headers from 'file:///file.csv' as row
                         create (:Air_class{
@@ -83,10 +80,7 @@ class DatabaseConnector:
         '''
         tx.run('MATCH (n) DELETE n')  # clear database
         tx.run(req)
-        print([record["name"] for record in tx.run('MATCH (n)')])
 
-
-#         "_labels","message","name","_start","_end","_type"
 
 if __name__ == "__main__":
     greeter = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
