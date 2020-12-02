@@ -1,4 +1,5 @@
 from neo4j import GraphDatabase
+from neomodel import db, clear_neo4j_database
 
 
 class DatabaseConnector:
@@ -22,6 +23,15 @@ class DatabaseConnector:
         with self.driver.session() as session:
             result = session.write_transaction(self._create_species, name)
 
+    def getCsv(self):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._get_data)[0]
+        return result
+
+    def setCsv(self):
+        with self.driver.session() as session:
+            session.write_transaction(self._import)
+
     @staticmethod
     def _create_and_return_greeting(tx, message):
         result = tx.run("CREATE (a:Greeting) "
@@ -44,9 +54,41 @@ class DatabaseConnector:
         result = tx.run(req, name=name)
         return result.single()
 
+    @staticmethod
+    def _get_data(tx):
+        req = '''
+            CALL apoc.export.csv.all(null, {stream: true})
+            YIELD data
+            RETURN data;
+        '''
+        result = tx.run(req)
+        return result.single()
+
+    @staticmethod
+    def _import(tx):
+        # That is a proto. In real life it must be as much requests and files as there are node types
+        # TODO: make requests for every node type
+        # TODO: format the request string with export file name
+        req = '''
+            load csv with headers from 'file:///file.csv' as row
+                        create (:Air_class{
+                                id: toInteger(row._id),
+                                _labels:row._labels,
+                                message:row.message
+                            }
+                        )
+        '''
+        tx.run('MATCH (n) DELETE n')  # clear database
+        tx.run(req)
+
 
 if __name__ == "__main__":
     greeter = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
     # greeter.print_greeting("hello, world")
-    print(greeter.getSpecies())
+    # rec = greeter.getCsv()
+    # print(rec)
+    # print(type(rec))
+    # greeter.createSpec('extra spec')
+    greeter.setCsv()
     greeter.close()
+    #
