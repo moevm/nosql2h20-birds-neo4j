@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QRadioButton, QLabel, QFileDialog, QMessageBox
-from frontend.widgets.MplWidget import MplWidget
+from src.frontend.widgets.MplWidget import MplWidget
 from PyQt5 import QtWidgets
 
-from frontend.widgets.QHintCombo import QHintCombo
+from src.frontend.widgets.QHintCombo import QHintCombo
 
 
 class DatabaseWindow(QWidget):
@@ -14,8 +14,9 @@ class DatabaseWindow(QWidget):
     axisLabel = None
     b1, b2 = None, None
 
-    def __init__(self):
+    def __init__(self, databaseConnector):
         super().__init__()
+        self.databaseConnector = databaseConnector
         self.title = 'Statistics/management'
         self.initUI()
 
@@ -60,12 +61,18 @@ class DatabaseWindow(QWidget):
             b.text() + " is deselected"
 
     def importDatabase(self):
-        fname, err = QFileDialog.getOpenFileName(self, 'Open file', filter="Database files")
+        # fname, err = QFileDialog.getOpenFileName(self, 'Open file', filter="Database files")
+        self.databaseConnector.setCsv()
         # TODO: open database for real
         # TODO: handle troubles
 
     def exportDatabase(self):
-        fname, err = QFileDialog.getSaveFileName(self, 'Save file', filter="Database files")
+        fname, err = QFileDialog.getSaveFileName(self, 'Save file', filter="CSV (*.csv)")
+        data = self.databaseConnector.getCsv()
+        f = open(fname, 'w', encoding='utf-8')
+        f.write(str(data))
+        f.close()
+
         # TODO: save database
         # TODO: handle troubles
         msg = QMessageBox()

@@ -2,8 +2,8 @@ import json
 
 from PyQt5 import QtCore, QtWidgets, QtWebEngineWidgets, QtWebChannel, QtNetwork
 
-from frontend.widgets.QGoogleMapsWidget.page import HTML
-from frontend.widgets.QGoogleMapsWidget.script import JS
+from src.frontend.widgets.QGoogleMapsWidget.page import HTML
+from src.frontend.widgets.QGoogleMapsWidget.script import JS
 
 
 class GeoCoder(QtNetwork.QNetworkAccessManager):
