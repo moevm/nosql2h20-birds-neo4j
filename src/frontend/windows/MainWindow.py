@@ -87,7 +87,7 @@ class MainWindow(object):
 
     def openDatabaseWindow(self):
         if self.dbWindow is None:
-            self.dbWindow = DatabaseWindow()
+            self.dbWindow = DatabaseWindow(self.databaseConnector)
         self.dbWindow.show()
 
     def showBird(self, key, lat, lng):

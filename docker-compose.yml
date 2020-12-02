@@ -7,14 +7,18 @@ services:
       - NEO4J_dbms_connector_bolt_advertised__address=localhost
       - NEO4J_dbms_connector_http_advertised__address=localhost
       - NEO4J_dbms_connector_https_advertised__address=localhost
+      - NEO4JLABS_PLUGINS=["apoc"]
     expose:
       - 7687
       - 7474
     volumes:
     - $HOME/neo4j/data:/data
     - $HOME/neo4j/logs:/logs
-    - $HOME/neo4j/import:/var/lib/neo4j/import
+#    - $HOME/neo4j/import:/import
     - $HOME/neo4j/plugins:/plugins
+    - type: bind
+      source: $HOST/home/mikhail/neo4j/import
+      target: /import
 
   birdwatcher:
     build: .
@@ -22,6 +26,10 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - .:/birdwathcer
+      # This one is to save database to, than see the file in host filesystem
+#      - type: bind
+#          source: $HOST/home/mikhail/neo4j/import
+#          target: /import
     user: qtuser
     environment:
      - DISPLAY=$DISPLAY

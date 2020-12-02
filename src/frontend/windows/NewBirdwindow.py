@@ -39,11 +39,11 @@ class NewBirdwindow(QWidget):
         self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self)
         self.specInput.setGeometry(10, 10, 180, 25)
 
-        self.picBtn = QPushButton(icon=QIcon(QPixmap('../res/img/add_photo_icon.png')), parent=self)
+        self.picBtn = QPushButton(icon=QIcon(QPixmap('./res/img/add_photo_icon.png')), parent=self)
         self.picBtn.clicked.connect(self.getfile)
         self.picBtn.setGeometry(200, 10, 25, 25)
 
-        self.okBtn = QPushButton(icon=QIcon(QPixmap('../res/img/ok_icon.jpg')), parent=self)
+        self.okBtn = QPushButton(icon=QIcon(QPixmap('./res/img/ok_icon.jpg')), parent=self)
         self.okBtn.clicked.connect(self.addBird)
         self.okBtn.setGeometry(235, 10, 25, 25)
 
