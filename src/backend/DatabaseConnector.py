@@ -1,5 +1,4 @@
 from neo4j import GraphDatabase
-from neomodel import db, clear_neo4j_database
 
 
 class DatabaseConnector:
@@ -34,6 +33,21 @@ class DatabaseConnector:
     def getSpecies(self):
         with self.driver.session() as session:
             result = session.write_transaction(self._get_all_species)
+            return result
+
+    def selectAllBirds(self):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._select_all())
+            return result
+
+    def selectBirdById(self, id_):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._select_by_id, id_)
+            return result
+
+    def selectBirdsByKind(self, kind):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._select_by_kind, kind)
             return result
 
     def createSpec(self, name):
@@ -76,7 +90,7 @@ class DatabaseConnector:
     # Get id's of all birds by its kind
     @staticmethod
     def _select_by_kind(tx, kind):
-        req = '''MATCH (id:Bird)-[:is]->(Kind {name: $kind})
+        req = '''MATCH (id:Bird)-[:Is]->(:Kind {name: $kind})
                  RETURN id'''
         result = tx.run(req, kind=kind)
         return [record["id"] for record in result]
@@ -155,7 +169,6 @@ class DatabaseConnector:
         tx.run(req)
 
 
-
 if __name__ == "__main__":
     greeter = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
     # greeter.print_greeting("hello, world")
@@ -165,14 +178,14 @@ if __name__ == "__main__":
     print(greeter.create_bird(1, 1, "Птеродактиль", 0.3, 0.4))
     print(greeter.create_bird(2, 1, "Соловей", 0.5, 0.6))
     print(greeter.create_bird(3, 1, "Грач", 0.7, 0.8))
-    print(greeter.get_birds_area("Грач"))
+    # print(greeter.get_birds_area("Грач"))
+    print(greeter.selectBirdsByKind("Грач"))
     greeter.close()
 
     # rec = greeter.getCsv()
     # print(rec)
     # print(type(rec))
     # greeter.createSpec('extra spec')
-    greeter.setCsv()
-    greeter.close()
+    # greeter.setCsv()
+    # greeter.close()
     #
-
