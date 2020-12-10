@@ -1,5 +1,4 @@
 from neo4j import GraphDatabase
-from neomodel import db, clear_neo4j_database
 
 
 class DatabaseConnector:

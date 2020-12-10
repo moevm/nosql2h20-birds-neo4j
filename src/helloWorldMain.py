@@ -2,7 +2,7 @@ import sys
 
 from PyQt5 import QtCore, QtWidgets
 
-from src.backend.DatabaseConnector import DatabaseConnector
+from backend.DatabaseConnector import DatabaseConnector
 
 
 class MainWindow(object):

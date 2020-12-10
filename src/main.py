@@ -3,8 +3,8 @@ import time
 
 from PyQt5 import QtWidgets
 
-from src.backend.DatabaseConnector import DatabaseConnector
-from src.frontend.windows import MainWindow
+from backend.DatabaseConnector import DatabaseConnector
+from frontend.windows import MainWindow
 
 
 class ExampleApp(QtWidgets.QMainWindow, MainWindow.MainWindow):
