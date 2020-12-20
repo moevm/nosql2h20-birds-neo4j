@@ -16,8 +16,14 @@ from frontend.widgets.QtImageViewer import QImageviewer
 
 
 class NewBirdwindow(QWidget):
-    def __init__(self):
+    # These are new bird nodes fields specified currently
+    fname = None
+    lat = 0
+    lang = 0
+
+    def __init__(self, databaseConnector):
         super().__init__()
+        self.databaseConnector = databaseConnector
         self.title = 'New marker'
         self.initUI()
 
@@ -26,15 +32,16 @@ class NewBirdwindow(QWidget):
         self.setGeometry(10, 10, 800, 620)
 
         API_KEY = "AIzaSyD1VkY2p8-r3zH_wrpMk6xkPWc6dweaThM+"
-        birdsMap = QGMapsLocatorWidget(api_key=API_KEY, parent=self)
-        birdsMap.setGeometry(QtCore.QRect(0, 0, 800, 620))
-        birdsMap.waitUntilReady()
-        birdsMap.setZoom(14)
-        lat, lng = birdsMap.centerAtAddress("Russia")
+        self.birdsMap = QGMapsLocatorWidget(api_key=API_KEY, parent=self)
+        self.birdsMap.setGeometry(QtCore.QRect(0, 0, 800, 620))
+        self.birdsMap.waitUntilReady()
+        self.birdsMap.setZoom(14)
+        lat, lng = self.birdsMap.centerAtAddress("Russia")
         if lat is None and lng is None:
             lat, lng = 60.010297, 30.418990
-            birdsMap.centerAt(lat, lng)
-        birdsMap.move(0, 0)
+            self.birdsMap.centerAt(lat, lng)
+        self.birdsMap.move(0, 0)
+        self.birdsMap.mapClicked.connect(self.rememberCords)
 
         self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self)
         self.specInput.setGeometry(10, 10, 180, 25)
@@ -54,8 +61,12 @@ class NewBirdwindow(QWidget):
 
         self.show()
 
+    def rememberCords(self, lat, lang):
+        self.lat, self.lang = lat, lang
+
     def getfile(self):
         fname, err = QFileDialog.getOpenFileName(self, 'Open file', filter="Image files (*.jpg *.gif *.png *.bmp)")
+        self.fname = fname
         image = QPixmap(fname)
         self.image.setPixmap(image)
         g = self.image.geometry()
@@ -65,6 +76,8 @@ class NewBirdwindow(QWidget):
 
     def addBird(self):
         msg = QMessageBox()
+        birdName = self.specInput.currentText()
+        self.databaseConnector.create_bird(url=self.fname, name=birdName, latitude=self.lat, longitude=self.lang)
         # msg.setWindowIcon(QIcon(QPixmap('../res/img/success_icon.png')))
         msg.setText("bird marker added!")
         msg.setWindowTitle("Success!")
@@ -72,4 +85,3 @@ class NewBirdwindow(QWidget):
         msg.exec_()
         self.image.hide()
         return
-
