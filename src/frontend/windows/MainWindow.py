@@ -26,8 +26,10 @@ mass2 = [['1', 60.012400, 30.420168, "http://maps.gstatic.com/mapfiles/ridefinde
 
 
 class MainWindow(object):
+    ALL_LABEL = "Все"
     dbWindow = None
     secondWindow = None
+    data = None
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -51,10 +53,14 @@ class MainWindow(object):
             self.birdsMap.centerAt(lat, lng)
         self.birdsMap.markerClicked.connect(self.showBird)
 
-        # demo thing:
-        self.birdsMap.showMarkers(mass1)
+        self.data = self.databaseConnector.get_all_birds_area()  # All the birds
+        marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
+        self.birdsMap.showMarkers([[i, r['latitude'], r['longitude'], marker] for i, r in enumerate(self.data)])
 
-        self.specInput = QHintCombo(items=self.databaseConnector.getSpecies(), parent=self.centralwidget)
+        species = self.databaseConnector.getSpecies()
+        species.append(self.ALL_LABEL)
+        species.reverse()  # ALL_LABEl comes first
+        self.specInput = QHintCombo(items=species, parent=self.centralwidget)
         self.specInput.setGeometry(10, 10, 180, 25)
         self.specInput.currentIndexChanged.connect(self.chooseSpec)
 
@@ -82,7 +88,7 @@ class MainWindow(object):
 
     def openNewBirdWindow(self):
         if self.secondWindow is None:
-            self.secondWindow = NewBirdwindow()
+            self.secondWindow = NewBirdwindow(self.databaseConnector)
         self.secondWindow.show()
 
     def openDatabaseWindow(self):
@@ -102,6 +108,10 @@ class MainWindow(object):
         return
 
     def chooseSpec(self, index):
-        mass = [mass1, mass2]
-        self.birdsMap.showMarkers(mass[index % 2])
-        print('hi')
+        specLabel = self.specInput.currentText()
+        specLabel = None if specLabel == self.ALL_LABEL else specLabel
+        self.data = self.databaseConnector.get_birds_area(specLabel)  # All the birds
+        print(self.data)
+        marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
+        self.birdsMap.showMarkers([[i, r["latitude"], r["longitude"], marker] for i, r in enumerate(self.data)])
+
