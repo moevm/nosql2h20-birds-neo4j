@@ -61,22 +61,33 @@ class DatabaseWindow(QWidget):
             b.text() + " is deselected"
 
     def importDatabase(self):
-        # fname, err = QFileDialog.getOpenFileName(self, 'Open file', filter="Database files")
-        self.databaseConnector.setCsv()
-        # TODO: open database for real
-        # TODO: handle troubles
+        fname, err = QFileDialog.getOpenFileName(self, 'Save file', filter="CSV (*.csv)")
+        try:
+            self.databaseConnector.importData(fname)
+            msg = QMessageBox()
+            msg.setText("Database loaded!")
+            msg.setWindowTitle("Success!")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+        except:
+            msg = QMessageBox()
+            msg.setText("Database not loaded! Very bad!")
+            msg.setWindowTitle("Failure!")
+            msg.setStandardButtons(QMessageBox.Discard)
+            msg.exec_()
 
     def exportDatabase(self):
         fname, err = QFileDialog.getSaveFileName(self, 'Save file', filter="CSV (*.csv)")
-        data = self.databaseConnector.getCsv()
-        f = open(fname, 'w', encoding='utf-8')
-        f.write(str(data))
-        f.close()
-
-        # TODO: save database
-        # TODO: handle troubles
-        msg = QMessageBox()
-        msg.setText("Database saved!")
-        msg.setWindowTitle("Success!")
-        msg.setStandardButtons(QMessageBox.Ok)
-        msg.exec_()
+        try:
+            self.databaseConnector.exportData(fname)
+            msg = QMessageBox()
+            msg.setText("Database saved!")
+            msg.setWindowTitle("Success!")
+            msg.setStandardButtons(QMessageBox.Ok)
+            msg.exec_()
+        except:
+            msg = QMessageBox()
+            msg.setText("Database not saved! Very bad!")
+            msg.setWindowTitle("Failure!")
+            msg.setStandardButtons(QMessageBox.Discard)
+            msg.exec_()

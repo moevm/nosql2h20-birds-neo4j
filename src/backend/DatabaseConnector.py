@@ -1,3 +1,5 @@
+import json
+
 from neo4j import GraphDatabase
 
 
@@ -60,6 +62,11 @@ class DatabaseConnector:
         with self.driver.session() as session:
             result = session.write_transaction(self._count_birds)
         return result["count"]
+
+    def getRecords(self):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._export_sep)
+        return result
 
     @staticmethod
     def _create_and_return_greeting(tx, message):
@@ -177,28 +184,33 @@ class DatabaseConnector:
         tx.run('MATCH (n) DELETE n')  # clear database
         tx.run(req)
 
+    @staticmethod
+    def _export_sep(tx):
+        req = '''MATCH (a:Bird)-[:Found_at]->(b:Place), (d:File)
+                 MATCH (:Bird)-[:Is]->(c:Kind)
+                 MATCH (:Bird)-[:Contains]->(d:File)
+                 WHERE (a)-[:Is]->(c)
+                 AND (a)-[:Contains]->(d)
+                 RETURN c.name as name, b.latitude, b.longitude, d.URL
+        '''
+        result = tx.run(req)
+
+        return [{'name': r[0], 'latitude': r[1], 'longitude': r[2], 'url': r[3]} for r in result.values()]
+
+    def importData(self, fname):
+        self.delete_nodes()
+        with open(fname) as json_file:
+            data = json.load(json_file)
+            for d in data:
+                self.create_bird(url=d['url'], name=d['name'], latitude=int(d['latitude']), longitude=int(d['longitude']))
+
+    def exportData(self, fname):
+        with open(fname, 'w') as json_file:
+            json.dump(self.getRecords(), json_file)
 
 
 if __name__ == "__main__":
     greeter = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
-    # greeter.print_greeting("hello, world")
-    # print(greeter.getSpecies())
-    # greeter.delete_nodes()
-    # print(greeter.create_bird(0, 1, "Грач", 0.1, 0.2))
-    # print(greeter.create_bird(1, 1, "Птеродактиль", 0.3, 0.4))
-    # print(greeter.create_bird(2, 1, "Соловей", 0.5, 0.6))
-    # print(greeter.create_bird(3, 1, "Грач", 0.7, 0.8))
-    # print(greeter.get_birds_area("Грач"))
-
-    print(greeter.countBirds())
+    greeter.importData('text.txt')
     greeter.close()
-
-
-    # rec = greeter.getCsv()
-    # print(rec)
-    # print(type(rec))
-    # greeter.createSpec('extra spec')
-    # greeter.setCsv()
-    # greeter.close()
-    #
 
