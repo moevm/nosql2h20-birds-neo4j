@@ -8,7 +8,7 @@ from frontend.windows import MainWindow
 
 
 class ExampleApp(QtWidgets.QMainWindow, MainWindow.MainWindow):
-    HOST: str = 'neo4j'  # Gotta use database container name as host
+    HOST: str = 'localhost'  # Gotta use database container name as host
     PORT: str = '7687'  # 7687 for bolt, 7474 for http, 7473 for https
     NAME: str = 'neo4j'  # Authorization
     PASSWORD: str = 'password'  # Authorization

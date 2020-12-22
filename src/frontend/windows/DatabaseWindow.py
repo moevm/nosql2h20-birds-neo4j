@@ -6,6 +6,7 @@ from frontend.widgets.QHintCombo import QHintCombo
 
 
 class DatabaseWindow(QWidget):
+    ALL_LABEL = "Все"
     canvas = None
     plotWidget = None
     importDbButton = None
@@ -31,7 +32,10 @@ class DatabaseWindow(QWidget):
         self.plotWidget.canvas.axes.set_xlabel('Latitude')
         self.plotWidget.canvas.axes.set_ylabel('Count')
 
-        self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self)
+        species = self.databaseConnector.getSpecies()
+        species.append(self.ALL_LABEL)
+        species.reverse()  # ALL_LABEl comes first
+        self.specInput = QHintCombo(items=species, parent=self)
         self.specInput.setGeometry(10, 550, 180, 25)
 
         self.axisLabel = QLabel("Axis 'X':", parent=self)

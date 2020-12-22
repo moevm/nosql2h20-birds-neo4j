@@ -16,14 +16,6 @@ from frontend.widgets.QtImageViewer import QImageviewer
 from frontend.windows.DatabaseWindow import DatabaseWindow
 from frontend.windows.NewBirdwindow import NewBirdwindow
 
-# demo thing:
-mass1 = [['1', 60.010400, 30.416168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['2', 60.010536, 30.412821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['3', 60.010600, 30.410000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
-mass2 = [['1', 60.012400, 30.420168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['2', 60.011536, 30.419821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['3', 60.011600, 30.414000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
-
 
 class MainWindow(object):
     ALL_LABEL = "Все"
@@ -97,21 +89,26 @@ class MainWindow(object):
         self.dbWindow.show()
 
     def showBird(self, key, lat, lng):
-        # TODO: get bird data to show from DB
-        image = QPixmap('../res/img/bird_photos/bird_photo1.jpg')
-        self.image.setPixmap(image)
-        g = self.image.geometry()
-        g.setHeight(250.0 * image.height() / image.width())
-        self.image.setGeometry(g)
-        self.image.show(animation=False)
-        print(key)
+        try:
+            fname = self.databaseConnector.getBirdById(int(key))
+            image = QPixmap(fname)
+            self.image.setPixmap(image)
+            g = self.image.geometry()
+            g.setHeight(250.0 * image.height() / image.width())
+            self.image.setGeometry(g)
+            self.image.show(animation=False)
+        except:
+            print('Failed to open photo; make sure it is located in a directory mounted if using docker!')
         return
 
     def chooseSpec(self, index):
         specLabel = self.specInput.currentText()
-        specLabel = None if specLabel == self.ALL_LABEL else specLabel
-        self.data = self.databaseConnector.get_birds_area(specLabel)  # All the birds
+        # specLabel = None if specLabel == self.ALL_LABEL else specLabel
+        if specLabel == self.ALL_LABEL:
+            self.data = self.databaseConnector.get_all_birds_area()  # All the birds
+        else:
+            self.data = self.databaseConnector.get_birds_area(specLabel)
         print(self.data)
         marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
-        self.birdsMap.showMarkers([[i, r["latitude"], r["longitude"], marker] for i, r in enumerate(self.data)])
+        self.birdsMap.showMarkers([[r["id"], r["latitude"], r["longitude"], marker] for i, r in enumerate(self.data)])
 
