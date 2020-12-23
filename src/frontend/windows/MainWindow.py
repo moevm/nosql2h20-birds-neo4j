@@ -10,24 +10,18 @@
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QPixmap
 
-from src.frontend.widgets.QGoogleMapsMarkerViewWidget import QGoogleMapsMarkerViewWidget
-from src.frontend.widgets.QHintCombo import QHintCombo
-from src.frontend.widgets.QtImageViewer import QImageviewer
-from src.frontend.windows.DatabaseWindow import DatabaseWindow
-from src.frontend.windows.NewBirdwindow import NewBirdwindow
-
-# demo thing:
-mass1 = [['1', 60.010400, 30.416168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['2', 60.010536, 30.412821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['3', 60.010600, 30.410000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
-mass2 = [['1', 60.012400, 30.420168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['2', 60.011536, 30.419821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['3', 60.011600, 30.414000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
+from frontend.widgets.QGoogleMapsMarkerViewWidget import QGoogleMapsMarkerViewWidget
+from frontend.widgets.QHintCombo import QHintCombo
+from frontend.widgets.QtImageViewer import QImageviewer
+from frontend.windows.DatabaseWindow import DatabaseWindow
+from frontend.windows.NewBirdwindow import NewBirdwindow
 
 
 class MainWindow(object):
+    ALL_LABEL = "Все"
     dbWindow = None
     secondWindow = None
+    data = None
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -51,10 +45,14 @@ class MainWindow(object):
             self.birdsMap.centerAt(lat, lng)
         self.birdsMap.markerClicked.connect(self.showBird)
 
-        # demo thing:
-        self.birdsMap.showMarkers(mass1)
+        self.data = self.databaseConnector.get_all_birds_area()  # All the birds
+        marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
+        self.birdsMap.showMarkers([[i, r['latitude'], r['longitude'], marker] for i, r in enumerate(self.data)])
 
-        self.specInput = QHintCombo(items=self.databaseConnector.getSpecies(), parent=self.centralwidget)
+        species = self.databaseConnector.getSpecies()
+        species.append(self.ALL_LABEL)
+        species.reverse()  # ALL_LABEl comes first
+        self.specInput = QHintCombo(items=species, parent=self.centralwidget)
         self.specInput.setGeometry(10, 10, 180, 25)
         self.specInput.currentIndexChanged.connect(self.chooseSpec)
 
@@ -82,7 +80,7 @@ class MainWindow(object):
 
     def openNewBirdWindow(self):
         if self.secondWindow is None:
-            self.secondWindow = NewBirdwindow()
+            self.secondWindow = NewBirdwindow(self.databaseConnector)
         self.secondWindow.show()
 
     def openDatabaseWindow(self):
@@ -91,17 +89,26 @@ class MainWindow(object):
         self.dbWindow.show()
 
     def showBird(self, key, lat, lng):
-        # TODO: get bird data to show from DB
-        image = QPixmap('../res/img/bird_photos/bird_photo1.jpg')
-        self.image.setPixmap(image)
-        g = self.image.geometry()
-        g.setHeight(250.0 * image.height() / image.width())
-        self.image.setGeometry(g)
-        self.image.show(animation=False)
-        print(key)
+        try:
+            fname = self.databaseConnector.getBirdById(int(key))
+            image = QPixmap(fname)
+            self.image.setPixmap(image)
+            g = self.image.geometry()
+            g.setHeight(250.0 * image.height() / image.width())
+            self.image.setGeometry(g)
+            self.image.show(animation=False)
+        except:
+            print('Failed to open photo; make sure it is located in a directory mounted if using docker!')
         return
 
     def chooseSpec(self, index):
-        mass = [mass1, mass2]
-        self.birdsMap.showMarkers(mass[index % 2])
-        print('hi')
+        specLabel = self.specInput.currentText()
+        # specLabel = None if specLabel == self.ALL_LABEL else specLabel
+        if specLabel == self.ALL_LABEL:
+            self.data = self.databaseConnector.get_all_birds_area()  # All the birds
+        else:
+            self.data = self.databaseConnector.get_birds_area(specLabel)
+        print(self.data)
+        marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
+        self.birdsMap.showMarkers([[r["id"], r["latitude"], r["longitude"], marker] for i, r in enumerate(self.data)])
+

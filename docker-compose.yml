@@ -14,22 +14,19 @@ services:
     volumes:
     - $HOME/neo4j/data:/data
     - $HOME/neo4j/logs:/logs
-#    - $HOME/neo4j/import:/import
     - $HOME/neo4j/plugins:/plugins
-    - type: bind
-      source: $HOST/home/mikhail/neo4j/import
-      target: /import
+    - "./import:/import"
 
   birdwatcher:
     build: .
     command: python3 src/main.py
     volumes:
+      - "./pic:/birdwather_app/pic"
+      # This one is to save database to, than see the file in host filesystem
+      - "./import:/birdwather_app/import"
       - /tmp/.X11-unix:/tmp/.X11-unix
       - .:/birdwathcer
-      # This one is to save database to, than see the file in host filesystem
-#      - type: bind
-#          source: $HOST/home/mikhail/neo4j/import
-#          target: /import
+
     user: qtuser
     environment:
      - DISPLAY=$DISPLAY
