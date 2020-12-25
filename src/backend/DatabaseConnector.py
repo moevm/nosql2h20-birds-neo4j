@@ -23,7 +23,6 @@ class DatabaseConnector:
     def get_all_birds_area(self):
         with self.driver.session() as session:
             area = session.write_transaction(self._get_all_birds_area)
-            print(area)
         return area
 
     def create_bird(self, url, name, latitude, longitude):
@@ -236,23 +235,5 @@ class DatabaseConnector:
 
 if __name__ == "__main__":
     greeter = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
-    # greeter.print_greeting("hello, world")
-    # print(greeter.getSpecies())
-    greeter.delete_nodes()
-    print(greeter.create_bird(0, 1, "Грач", 0.1, 0.2))
-    print(greeter.create_bird(1, 1, "Птеродактиль", 0.3, 0.4))
-    print(greeter.create_bird(2, 1, "Соловей", 0.5, 0.6))
-    print(greeter.create_bird(3, 1, "Грач", 0.7, 0.8))
-    # print(greeter.get_birds_area("Грач"))
-    print(greeter.selectBirdsByKind("Грач"))
-    greeter.close()
-
-    # rec = greeter.getCsv()
-    # print(rec)
-    # print(type(rec))
-    # greeter.createSpec('extra spec')
-    # greeter.setCsv()
-    # greeter.close()
-    #
-    greeter.importData('text.txt')
+    print(type(greeter.get_all_birds_area()))
     greeter.close()
