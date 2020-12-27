@@ -1,3 +1,5 @@
+import json
+
 from neo4j import GraphDatabase
 
 
@@ -13,15 +15,20 @@ class DatabaseConnector:
             greeting = session.write_transaction(self._create_and_return_greeting, message)
             print(greeting)
 
-    def get_birds_area(self, kind):
+    def get_birds_area(self, kind=None):
         with self.driver.session() as session:
             area = session.write_transaction(self._get_birds_area, kind)
-            print(area)
         return area
 
-    def create_bird(self, id__, url, name, latitude, longitude):
+    def get_all_birds_area(self):
         with self.driver.session() as session:
-            bird = session.write_transaction(self._create_bird, id__, url, name, latitude, longitude)
+            area = session.write_transaction(self._get_all_birds_area)
+        return area
+
+    def create_bird(self, url, name, latitude, longitude):
+        with self.driver.session() as session:
+            birdId = self.countBirds()
+            bird = session.write_transaction(self._create_bird, birdId, url, name, latitude, longitude)
 
     def delete_nodes(self):
         with self.driver.session() as session:
@@ -34,6 +41,21 @@ class DatabaseConnector:
     def getSpecies(self):
         with self.driver.session() as session:
             result = session.write_transaction(self._get_all_species)
+            return result
+
+    def selectAllBirds(self):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._select_all())
+            return result
+
+    def selectBirdById(self, id_):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._select_by_id, id_)
+            return result
+
+    def selectBirdsByKind(self, kind):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._select_by_kind, kind)
             return result
 
     def createSpec(self, name):
@@ -49,6 +71,21 @@ class DatabaseConnector:
     def setCsv(self):
         with self.driver.session() as session:
             session.write_transaction(self._import)
+
+    def countBirds(self):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._count_birds)
+        return result["count"]
+
+    def getRecords(self):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._export_sep)
+        return result
+
+    def getBirdById(self, id):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._get_bird_by_id, id)
+        return result
 
     @staticmethod
     def _create_and_return_greeting(tx, message):
@@ -76,7 +113,7 @@ class DatabaseConnector:
     # Get id's of all birds by its kind
     @staticmethod
     def _select_by_kind(tx, kind):
-        req = '''MATCH (id:Bird)-[:is]->(Kind {name: $kind})
+        req = '''MATCH (id:Bird)-[:Is]->(:Kind {name: $kind})
                  RETURN id'''
         result = tx.run(req, kind=kind)
         return [record["id"] for record in result]
@@ -99,20 +136,31 @@ class DatabaseConnector:
 
     # Show the birds flying area by its kind
     @staticmethod
-    def _get_birds_area(tx, kind):
-        req = '''MATCH (a:Bird)-[:Found_at]->(b:Place)
-                 MATCH (:Bird)-[:Is]->(c:Kind)
+    def _get_birds_area(tx, kind=None):
+        req = '''MATCH (a:Bird)-[:Found_at]->(b:Place), (c:Kind)
                  WHERE (a)-[:Is]->(c) AND c.name = $kind
-                 RETURN b'''
+                 RETURN b, a'''
         result = tx.run(req, kind=kind)
-        return [{'latitude':place['latitude'], 'longitude':place['longitude']} for place in result.values()[0]] # [rec['latitude'] for rec in result]
+        retval = [{'latitude':place[0]['latitude'], 'longitude':place[0]['longitude'], 'id': place[1]['Bird_id']} for place in result.values()]
+        return retval
 
-    # WHERE a = $kind
-
+    @staticmethod
+    def _get_all_birds_area(tx):
+        req = '''MATCH (a:Bird)-[:Found_at]->(b:Place)
+                 RETURN b, a'''
+        result = tx.run(req)
+        return [{'latitude':place[0]['latitude'], 'longitude':place[0]['longitude'], 'id':place[1]['Bird_id']} for place in
+                result.values()]  # [rec['latitude'] for rec in result]
+    @staticmethod
+    def _get_bird_by_id(tx, id):
+        req = '''MATCH (a:Bird{Bird_id:$id})-[:Contains]->(b:File)
+                 RETURN b'''
+        result = tx.run(req, id=id)
+        return result.single()[0]['URL']
     @staticmethod
     def _create_bird(tx, id__, url, name, latitude, longitude):
         req = '''CREATE (a:Bird {Bird_id: $id__})
-                 CREATE (c:Kind {name: $name})
+                 MERGE (c:Kind {name: $name})
                  CREATE (b:File {URL: $url})
                  CREATE (d:Place {latitude: $latitude, longitude: $longitude})
                  CREATE (a)-[:Is]->(c)
@@ -120,6 +168,12 @@ class DatabaseConnector:
                  CREATE (a)-[:Found_at]->(d)
         '''
         return tx.run(req, id__=id__, url=url, name=name, latitude=latitude, longitude=longitude)
+
+    @staticmethod
+    def _count_birds(tx):
+        req = '''MATCH (n:Bird) RETURN COUNT(n) as count'''
+        result = tx.run(req)  # A dictionary or something
+        return result.single()
 
     @staticmethod
     def _delete_nodes(tx):
@@ -154,25 +208,29 @@ class DatabaseConnector:
         tx.run('MATCH (n) DELETE n')  # clear database
         tx.run(req)
 
+    @staticmethod
+    def _export_sep(tx):
+        req = '''MATCH (a:Bird)-[:Found_at]->(b:Place), (d:File), (c:Kind)
+                 WHERE (a)-[:Is]->(c)
+                 AND (a)-[:Contains]->(d)
+                 RETURN c.name as name, b.latitude, b.longitude, d.URL
+        '''
+        result = tx.run(req)
 
+        return [{'name': r[0], 'latitude': r[1], 'longitude': r[2], 'url': r[3]} for r in result.values()]
+
+    def importData(self, fname):
+        self.delete_nodes()
+        with open(fname) as json_file:
+            data = json.load(json_file)
+            for d in data:
+                self.create_bird(url=d['url'], name=d['name'], latitude=d['latitude'], longitude=d['longitude'])
+
+    def exportData(self, fname):
+        with open(fname, 'w') as json_file:
+            json.dump(self.getRecords(), json_file)
 
 if __name__ == "__main__":
     greeter = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
-    # greeter.print_greeting("hello, world")
-    # print(greeter.getSpecies())
-    greeter.delete_nodes()
-    print(greeter.create_bird(0, 1, "Грач", 0.1, 0.2))
-    print(greeter.create_bird(1, 1, "Птеродактиль", 0.3, 0.4))
-    print(greeter.create_bird(2, 1, "Соловей", 0.5, 0.6))
-    print(greeter.create_bird(3, 1, "Грач", 0.7, 0.8))
-    print(greeter.get_birds_area("Грач"))
+    print(type(greeter.get_all_birds_area()))
     greeter.close()
-
-    # rec = greeter.getCsv()
-    # print(rec)
-    # print(type(rec))
-    # greeter.createSpec('extra spec')
-    greeter.setCsv()
-    greeter.close()
-    #
-

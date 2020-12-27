@@ -16,18 +16,13 @@ from frontend.widgets.QtImageViewer import QImageviewer
 from frontend.windows.DatabaseWindow import DatabaseWindow
 from frontend.windows.NewBirdwindow import NewBirdwindow
 
-# demo thing:
-mass1 = [['1', 60.010400, 30.416168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['2', 60.010536, 30.412821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['3', 60.010600, 30.410000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
-mass2 = [['1', 60.012400, 30.420168, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['2', 60.011536, 30.419821, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"],
-         ['3', 60.011600, 30.414000, "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"]]
-
 
 class MainWindow(object):
+    ALL_LABEL = "Все"
+    marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
     dbWindow = None
     secondWindow = None
+    data = None
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -45,22 +40,24 @@ class MainWindow(object):
         self.birdsMap.setGeometry(QtCore.QRect(0, 0, 800, 620))
         self.birdsMap.waitUntilReady()
         self.birdsMap.setZoom(14)
-        lat, lng = self.birdsMap.centerAtAddress("Russia")
-        if lat is None and lng is None:
-            lat, lng = 60.010297, 30.418990
-            self.birdsMap.centerAt(lat, lng)
+
+        lat, lng = 59.9713021, 30.3239561
+        self.birdsMap.centerAt(lat, lng)
         self.birdsMap.markerClicked.connect(self.showBird)
 
-        # demo thing:
-        self.birdsMap.showMarkers(mass1)
+        self.data = self.databaseConnector.get_all_birds_area()  # All the birds
+        self.birdsMap.showMarkers([[i, r['latitude'], r['longitude'], self.marker] for i, r in enumerate(self.data)])
 
-        self.specInput = QHintCombo(items=self.databaseConnector.getSpecies(), parent=self.centralwidget)
-        self.specInput.setGeometry(10, 10, 180, 25)
+        species = self.databaseConnector.getSpecies()
+        species.append(self.ALL_LABEL)
+        species.reverse()  # ALL_LABEl comes first
+        self.specInput = QHintCombo(items=species, parent=self.centralwidget)
+        self.specInput.setGeometry(190, 10, 180, 25)
         self.specInput.currentIndexChanged.connect(self.chooseSpec)
 
         self.addspecButton = QtWidgets.QPushButton(text="I saw a bird!", parent=self.centralwidget)
         self.addspecButton.clicked.connect(self.openNewBirdWindow)
-        self.addspecButton.setGeometry(200, 10, 100, 25)
+        self.addspecButton.setGeometry(380, 10, 100, 25)
 
         self.showStatsButton = QtWidgets.QPushButton(text="Database...", parent=self.centralwidget)
         self.showStatsButton.clicked.connect(self.openDatabaseWindow)
@@ -82,26 +79,44 @@ class MainWindow(object):
 
     def openNewBirdWindow(self):
         if self.secondWindow is None:
-            self.secondWindow = NewBirdwindow()
+            self.secondWindow = NewBirdwindow(self.databaseConnector, self)
         self.secondWindow.show()
 
     def openDatabaseWindow(self):
         if self.dbWindow is None:
-            self.dbWindow = DatabaseWindow(self.databaseConnector)
+            self.dbWindow = DatabaseWindow(self.databaseConnector, self)
         self.dbWindow.show()
 
     def showBird(self, key, lat, lng):
-        # TODO: get bird data to show from DB
-        image = QPixmap('../res/img/bird_photos/bird_photo1.jpg')
-        self.image.setPixmap(image)
-        g = self.image.geometry()
-        g.setHeight(250.0 * image.height() / image.width())
-        self.image.setGeometry(g)
-        self.image.show(animation=False)
-        print(key)
+        try:
+            fname = self.databaseConnector.getBirdById(int(key))
+            image = QPixmap(fname)
+            self.image.setPixmap(image)
+            g = self.image.geometry()
+            g.setHeight(250.0 * image.height() / image.width())
+            self.image.setGeometry(g)
+            self.image.show(animation=False)
+        except:
+            print('Failed to open photo; make sure it is located in a directory mounted if using docker!')
         return
 
     def chooseSpec(self, index):
-        mass = [mass1, mass2]
-        self.birdsMap.showMarkers(mass[index % 2])
-        print('hi')
+        specLabel = self.specInput.currentText()
+        # specLabel = None if specLabel == self.ALL_LABEL else specLabel
+        if specLabel == self.ALL_LABEL:
+            self.data = self.databaseConnector.get_all_birds_area()  # All the birds
+        else:
+            self.data = self.databaseConnector.get_birds_area(specLabel)
+        print(self.data)
+        marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
+        self.birdsMap.showMarkers([[r["id"], r["latitude"], r["longitude"], marker] for i, r in enumerate(self.data)])
+
+    def refresh(self):
+        self.data = self.databaseConnector.get_all_birds_area()  # All the birds
+        self.birdsMap.showMarkers([[i, r['latitude'], r['longitude'], self.marker] for i, r in enumerate(self.data)])
+        species = self.databaseConnector.getSpecies()
+        species.append(self.ALL_LABEL)
+        species.reverse()  # ALL_LABEl comes first
+        self.specInput = QHintCombo(items=species, parent=self.centralwidget)
+        self.specInput.setGeometry(10, 10, 180, 25)
+        self.specInput.currentIndexChanged.connect(self.chooseSpec)
