@@ -19,6 +19,7 @@ from frontend.windows.NewBirdwindow import NewBirdwindow
 
 class MainWindow(object):
     ALL_LABEL = "Все"
+    marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
     dbWindow = None
     secondWindow = None
     data = None
@@ -39,26 +40,24 @@ class MainWindow(object):
         self.birdsMap.setGeometry(QtCore.QRect(0, 0, 800, 620))
         self.birdsMap.waitUntilReady()
         self.birdsMap.setZoom(14)
-        lat, lng = self.birdsMap.centerAtAddress("Russia")
-        if lat is None and lng is None:
-            lat, lng = 60.010297, 30.418990
-            self.birdsMap.centerAt(lat, lng)
+
+        lat, lng = 59.9713021, 30.3239561
+        self.birdsMap.centerAt(lat, lng)
         self.birdsMap.markerClicked.connect(self.showBird)
 
         self.data = self.databaseConnector.get_all_birds_area()  # All the birds
-        marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
-        self.birdsMap.showMarkers([[i, r['latitude'], r['longitude'], marker] for i, r in enumerate(self.data)])
+        self.birdsMap.showMarkers([[i, r['latitude'], r['longitude'], self.marker] for i, r in enumerate(self.data)])
 
         species = self.databaseConnector.getSpecies()
         species.append(self.ALL_LABEL)
         species.reverse()  # ALL_LABEl comes first
         self.specInput = QHintCombo(items=species, parent=self.centralwidget)
-        self.specInput.setGeometry(10, 10, 180, 25)
+        self.specInput.setGeometry(190, 10, 180, 25)
         self.specInput.currentIndexChanged.connect(self.chooseSpec)
 
         self.addspecButton = QtWidgets.QPushButton(text="I saw a bird!", parent=self.centralwidget)
         self.addspecButton.clicked.connect(self.openNewBirdWindow)
-        self.addspecButton.setGeometry(200, 10, 100, 25)
+        self.addspecButton.setGeometry(380, 10, 100, 25)
 
         self.showStatsButton = QtWidgets.QPushButton(text="Database...", parent=self.centralwidget)
         self.showStatsButton.clicked.connect(self.openDatabaseWindow)
@@ -85,7 +84,7 @@ class MainWindow(object):
 
     def openDatabaseWindow(self):
         if self.dbWindow is None:
-            self.dbWindow = DatabaseWindow(self.databaseConnector)
+            self.dbWindow = DatabaseWindow(self.databaseConnector, self)
         self.dbWindow.show()
 
     def showBird(self, key, lat, lng):
@@ -112,7 +111,9 @@ class MainWindow(object):
         marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
         self.birdsMap.showMarkers([[r["id"], r["latitude"], r["longitude"], marker] for i, r in enumerate(self.data)])
 
-    def refreshSpec(self):
+    def refresh(self):
+        self.data = self.databaseConnector.get_all_birds_area()  # All the birds
+        self.birdsMap.showMarkers([[i, r['latitude'], r['longitude'], self.marker] for i, r in enumerate(self.data)])
         species = self.databaseConnector.getSpecies()
         species.append(self.ALL_LABEL)
         species.reverse()  # ALL_LABEl comes first

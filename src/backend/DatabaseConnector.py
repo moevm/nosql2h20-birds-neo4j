@@ -137,8 +137,7 @@ class DatabaseConnector:
     # Show the birds flying area by its kind
     @staticmethod
     def _get_birds_area(tx, kind=None):
-        req = '''MATCH (a:Bird)-[:Found_at]->(b:Place)
-                 MATCH (:Bird)-[:Is]->(c:Kind)
+        req = '''MATCH (a:Bird)-[:Found_at]->(b:Place), (c:Kind)
                  WHERE (a)-[:Is]->(c) AND c.name = $kind
                  RETURN b, a'''
         result = tx.run(req, kind=kind)
@@ -211,9 +210,7 @@ class DatabaseConnector:
 
     @staticmethod
     def _export_sep(tx):
-        req = '''MATCH (a:Bird)-[:Found_at]->(b:Place), (d:File)
-                 MATCH (:Bird)-[:Is]->(c:Kind)
-                 MATCH (:Bird)-[:Contains]->(d:File)
+        req = '''MATCH (a:Bird)-[:Found_at]->(b:Place), (d:File), (c:Kind)
                  WHERE (a)-[:Is]->(c)
                  AND (a)-[:Contains]->(d)
                  RETURN c.name as name, b.latitude, b.longitude, d.URL

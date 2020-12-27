@@ -37,23 +37,21 @@ class NewBirdwindow(QWidget):
         self.birdsMap.setGeometry(QtCore.QRect(0, 0, 800, 620))
         self.birdsMap.waitUntilReady()
         self.birdsMap.setZoom(14)
-        lat, lng = self.birdsMap.centerAtAddress("Russia")
-        if lat is None and lng is None:
-            lat, lng = 60.010297, 30.418990
-            self.birdsMap.centerAt(lat, lng)
+        lat, lng = 59.9713021, 30.3239561
+        self.birdsMap.centerAt(lat, lng)
         self.birdsMap.move(0, 0)
         self.birdsMap.mapClicked.connect(self.rememberCords)
 
         self.specInput = QHintCombo(items=self.databaseConnector.getSpecies(), parent=self)
-        self.specInput.setGeometry(10, 10, 180, 25)
+        self.specInput.setGeometry(190, 10, 180, 25)
 
-        self.picBtn = QPushButton(icon=QIcon(QPixmap('../res/img/add_photo_icon.png')), parent=self)
+        self.picBtn = QPushButton(icon=QIcon(QPixmap('./res/img/add_photo_icon.png')), parent=self)
         self.picBtn.clicked.connect(self.getfile)
-        self.picBtn.setGeometry(200, 10, 25, 25)
+        self.picBtn.setGeometry(380, 10, 25, 25)
 
         self.okBtn = QPushButton('✓', parent=self)
         self.okBtn.clicked.connect(self.addBird)
-        self.okBtn.setGeometry(235, 10, 25, 25)
+        self.okBtn.setGeometry(415, 10, 25, 25)
 
         self.image = QImageviewer(parent=self)
         self.image.setScaledContents(True)
@@ -66,7 +64,7 @@ class NewBirdwindow(QWidget):
         self.lat, self.lang = lat, lang
 
     def getfile(self):
-        fname, err = QFileDialog.getOpenFileName(self, 'Open file', filter="Image files (*.jpg *.gif *.png *.bmp)")
+        fname, err = QFileDialog.getOpenFileName(self, 'Open file', filter="Image files (*.jpg *.jpeg *.gif *.png *.bmp)")
         self.fname = fname
         image = QPixmap(fname)
         self.image.setPixmap(image)
@@ -82,7 +80,8 @@ class NewBirdwindow(QWidget):
         # msg.setWindowIcon(QIcon(QPixmap('../res/img/success_icon.png')))
         # refresh those fields in a stupid way
         self.parent.refreshSpec()
-        self.parent.dbWindow.refreshSpec()
+        if self.parent.dbWindow:  # Might be None
+            self.parent.dbWindow.refresh()
         self.specInput = QHintCombo(items=self.databaseConnector.getSpecies(), parent=self)
         self.specInput.setGeometry(10, 10, 180, 25)
         msg.setText("bird marker added!")

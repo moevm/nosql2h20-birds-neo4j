@@ -16,8 +16,9 @@ class DatabaseWindow(QWidget):
     axisLabel = None
     b1, b2, selected_btn = None, None, None
 
-    def __init__(self, databaseConnector):
+    def __init__(self, databaseConnector, parent=None):
         super().__init__()
+        self.parent = parent
         self.databaseConnector = databaseConnector
         self.title = 'Statistics/management'
         self.initUI()
@@ -116,6 +117,8 @@ class DatabaseWindow(QWidget):
             msg.setWindowTitle("Failure!")
             msg.setStandardButtons(QMessageBox.Discard)
             msg.exec_()
+        self.parent.refresh()
+        self.draw_statistics(self.selected_btn)
 
     def exportDatabase(self):
         fname, err = QFileDialog.getSaveFileName(self, 'Save file', filter="CSV (*.csv)")
