@@ -80,7 +80,7 @@ class MainWindow(object):
 
     def openNewBirdWindow(self):
         if self.secondWindow is None:
-            self.secondWindow = NewBirdwindow(self.databaseConnector)
+            self.secondWindow = NewBirdwindow(self.databaseConnector, self)
         self.secondWindow.show()
 
     def openDatabaseWindow(self):
@@ -112,3 +112,10 @@ class MainWindow(object):
         marker = "http://maps.gstatic.com/mapfiles/ridefinder-images/mm_20_red.png"
         self.birdsMap.showMarkers([[r["id"], r["latitude"], r["longitude"], marker] for i, r in enumerate(self.data)])
 
+    def refreshSpec(self):
+        species = self.databaseConnector.getSpecies()
+        species.append(self.ALL_LABEL)
+        species.reverse()  # ALL_LABEl comes first
+        self.specInput = QHintCombo(items=species, parent=self.centralwidget)
+        self.specInput.setGeometry(10, 10, 180, 25)
+        self.specInput.currentIndexChanged.connect(self.chooseSpec)

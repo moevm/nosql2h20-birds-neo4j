@@ -21,8 +21,9 @@ class NewBirdwindow(QWidget):
     lat = 0
     lang = 0
 
-    def __init__(self, databaseConnector):
+    def __init__(self, databaseConnector, parent=None):
         super().__init__()
+        self.parent = parent
         self.databaseConnector = databaseConnector
         self.title = 'New marker'
         self.initUI()
@@ -43,7 +44,7 @@ class NewBirdwindow(QWidget):
         self.birdsMap.move(0, 0)
         self.birdsMap.mapClicked.connect(self.rememberCords)
 
-        self.specInput = QHintCombo(items=["Воробей", "Петух", "Попугай", "Ворона"], parent=self)
+        self.specInput = QHintCombo(items=self.databaseConnector.getSpecies(), parent=self)
         self.specInput.setGeometry(10, 10, 180, 25)
 
         self.picBtn = QPushButton(icon=QIcon(QPixmap('../res/img/add_photo_icon.png')), parent=self)
@@ -79,6 +80,11 @@ class NewBirdwindow(QWidget):
         birdName = self.specInput.currentText()
         self.databaseConnector.create_bird(url=self.fname, name=birdName, latitude=self.lat, longitude=self.lang)
         # msg.setWindowIcon(QIcon(QPixmap('../res/img/success_icon.png')))
+        # refresh those fields in a stupid way
+        self.parent.refreshSpec()
+        self.parent.dbWindow.refreshSpec()
+        self.specInput = QHintCombo(items=self.databaseConnector.getSpecies(), parent=self)
+        self.specInput.setGeometry(10, 10, 180, 25)
         msg.setText("bird marker added!")
         msg.setWindowTitle("Success!")
         msg.setStandardButtons(QMessageBox.Ok)

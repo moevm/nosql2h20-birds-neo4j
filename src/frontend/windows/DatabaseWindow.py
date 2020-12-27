@@ -64,6 +64,9 @@ class DatabaseWindow(QWidget):
     def draw_statistics(self, b):
         bird_kind = self.specInput.currentText()
         geo_coord = b.text()
+        # bounds = [np.arange(0, 90, 10), np.arange(0, 180, 10)]
+        bounds_shift = 0
+        range_shift = 0
 
         if bird_kind == self.ALL_LABEL:
             a = self.databaseConnector.get_all_birds_area()
@@ -71,14 +74,21 @@ class DatabaseWindow(QWidget):
             a = self.databaseConnector.get_birds_area(bird_kind)
 
         x_axis = ([a[i][geo_coord.lower()] for i in range(len(a))])
-        y_axis = [self.count_range_in_list(x_axis, i - 5, i + 5) for i in np.arange(0, 90, 10)]
+
+        if (geo_coord == 'Longitude'):
+            bounds_shift = 90
+            range_shift = 5
+
+        # x_axis = bounds[bounds_index]
+        y_axis = [self.count_range_in_list(x_axis, i - 5, i + 5) for i in np.arange(0, 90 + bounds_shift, 10)]
+
 
         self.plotWidget.canvas.axes.clear()
-        self.plotWidget.canvas.axes.bar(np.arange(0, 90, 10), y_axis, width=10)
+        self.plotWidget.canvas.axes.bar(np.arange(0, 90 + bounds_shift, 10), y_axis, width=10)
         self.plotWidget.canvas.axes.set_xlabel(geo_coord)
         self.plotWidget.canvas.axes.set_ylabel(bird_kind)
         self.plotWidget.canvas.axes.set_xlim(0)
-        self.plotWidget.canvas.axes.set_xticks(np.arange(0, 90, 5))
+        self.plotWidget.canvas.axes.set_xticks(np.arange(0, 90 + bounds_shift, 5 + range_shift))
         self.plotWidget.canvas.axes.set_yticks(np.arange(0, max(y_axis) + 1, max(y_axis) // 10 + 1))
         self.plotWidget.canvas.draw()
         self.plotWidget.canvas.flush_events()
@@ -122,3 +132,11 @@ class DatabaseWindow(QWidget):
             msg.setWindowTitle("Failure!")
             msg.setStandardButtons(QMessageBox.Discard)
             msg.exec_()
+
+    def refreshSpec(self):
+        species = self.databaseConnector.getSpecies()
+        species.append(self.ALL_LABEL)
+        species.reverse()  # ALL_LABEL comes first
+        self.specInput = QHintCombo(items=species, parent=self)
+        self.specInput.setGeometry(10, 550, 180, 25)
+        self.specInput.currentIndexChanged.connect(lambda: self.draw_statistics(self.selected_btn))
