@@ -77,6 +77,11 @@ class DatabaseConnector:
             result = session.write_transaction(self._count_birds)
         return result["count"]
 
+    def countBirdsByKind(self, kind):
+        with self.driver.session() as session:
+            result = session.write_transaction(self._count_birds_by_kind, kind)
+        return result['count']
+
     def getRecords(self):
         with self.driver.session() as session:
             result = session.write_transaction(self._export_sep)
@@ -157,6 +162,7 @@ class DatabaseConnector:
                  RETURN b'''
         result = tx.run(req, id=id)
         return result.single()[0]['URL']
+
     @staticmethod
     def _create_bird(tx, id__, url, name, latitude, longitude):
         req = '''CREATE (a:Bird {Bird_id: $id__})
@@ -173,6 +179,12 @@ class DatabaseConnector:
     def _count_birds(tx):
         req = '''MATCH (n:Bird) RETURN COUNT(n) as count'''
         result = tx.run(req)  # A dictionary or something
+        return result.single()
+
+    @staticmethod
+    def _count_birds_by_kind(tx, kind):
+        req = '''MATCH (n:Bird)-[:Is]->(b:Kind) WHERE b.name=$kind RETURN COUNT(n) as count'''
+        result = tx.run(req, kind=kind)  # A dictionary or something
         return result.single()
 
     @staticmethod
@@ -232,5 +244,6 @@ class DatabaseConnector:
 
 if __name__ == "__main__":
     greeter = DatabaseConnector("bolt://localhost:7687", "neo4j", "password")
-    print(type(greeter.get_all_birds_area()))
+    # greeter.create_bird(' ', 'Петух', 30, 20)
+    print(greeter.countBirdsByKind('Петух'))
     greeter.close()
