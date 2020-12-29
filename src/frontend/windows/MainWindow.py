@@ -114,9 +114,8 @@ class MainWindow(object):
     def refresh(self):
         self.data = self.databaseConnector.get_all_birds_area()  # All the birds
         self.birdsMap.showMarkers([[i, r['latitude'], r['longitude'], self.marker] for i, r in enumerate(self.data)])
+
         species = self.databaseConnector.getSpecies()
         species.append(self.ALL_LABEL)
         species.reverse()  # ALL_LABEl comes first
-        self.specInput = QHintCombo(items=species, parent=self.centralwidget)
-        self.specInput.setGeometry(10, 10, 180, 25)
-        self.specInput.currentIndexChanged.connect(self.chooseSpec)
+        self.specInput.setItems(species)

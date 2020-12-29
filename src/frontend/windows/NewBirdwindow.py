@@ -79,11 +79,10 @@ class NewBirdwindow(QWidget):
         self.databaseConnector.create_bird(url=self.fname, name=birdName, latitude=self.lat, longitude=self.lang)
         # msg.setWindowIcon(QIcon(QPixmap('../res/img/success_icon.png')))
         # refresh those fields in a stupid way
-        self.parent.refreshSpec()
+        self.parent.refresh()
         if self.parent.dbWindow:  # Might be None
             self.parent.dbWindow.refresh()
-        self.specInput = QHintCombo(items=self.databaseConnector.getSpecies(), parent=self)
-        self.specInput.setGeometry(10, 10, 180, 25)
+        self.specInput.setItems(self.databaseConnector.getSpecies())
         msg.setText("bird marker added!")
         msg.setWindowTitle("Success!")
         msg.setStandardButtons(QMessageBox.Ok)

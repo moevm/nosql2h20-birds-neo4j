@@ -22,6 +22,7 @@ class DatabaseWindow(QWidget):
         super().__init__()
         self.parent = parent
         self.databaseConnector = databaseConnector
+        self.nKinds = len(self.databaseConnector.getSpecies())
         self.title = 'Statistics/management'
         self.initUI()
 
@@ -47,8 +48,8 @@ class DatabaseWindow(QWidget):
         self.rghtBtn.setGeometry(760, 510, 25, 25)
         self.lftBtn.setVisible(False)
         self.rghtBtn.setVisible(False)
-        self.lftBtn.toggled.connect(lambda: self.goLeft())
-        self.rghtBtn.toggled.connect(lambda: self.goRight())
+        self.lftBtn.clicked.connect(self.goLeft)
+        self.rghtBtn.clicked.connect(self.goRight)
 
         self.b1 = QRadioButton("Latitude", parent=self)
         self.b1.setGeometry(260, 550, 100, 25)
@@ -77,10 +78,13 @@ class DatabaseWindow(QWidget):
         if b.isChecked():
             self.selected_btn = b
             self.draw_statistics(b)
-            self.lftBtn.setVisible(b == self.b3)
-            self.rghtBtn.setVisible(b == self.b3)
+            print("nkinds={};showing {}".format(self.nKinds, self.kindsShown))
+            cond = b == self.b3 and self.kindsShown < self.nKinds
+            self.lftBtn.setVisible(cond)
+            self.rghtBtn.setVisible(cond)
 
     def draw_statistics(self, b):
+        self.nKinds = len(self.databaseConnector.getSpecies())
         bird_kind = self.specInput.currentText()
         geo_coord = b.text()
         bounds_shift = 0
@@ -92,9 +96,10 @@ class DatabaseWindow(QWidget):
         if specCountStats:
             kinds = self.databaseConnector.getSpecies()
             self.distIndex = max(self.distIndex, 0)
+            while self.distIndex >= len(kinds):
+                self.distIndex -= self.kindsShown
             lBound = self.distIndex
-            # TODO: workaround
-            self.distIndex = min(self.distIndex, len(kinds))
+            # self.distIndex = min(self.distIndex, len(kinds))
             rBound = min(self.distIndex + self.kindsShown, len(kinds))
             x_axis = kinds[lBound:rBound]
             freq = [self.databaseConnector.countBirdsByKind(k) for k in x_axis]
@@ -154,6 +159,9 @@ class DatabaseWindow(QWidget):
             msg.setStandardButtons(QMessageBox.Discard)
             msg.exec_()
         self.parent.refresh()
+        if self.parent.secondWindow:
+            self.parent.secondWindow.specInput.setItems(self.databaseConnector.getSpecies())
+        self.refresh()
         self.draw_statistics(self.selected_btn)
 
     def exportDatabase(self):
@@ -173,17 +181,17 @@ class DatabaseWindow(QWidget):
             msg.exec_()
 
     def goLeft(self):
+        print('going west')
         self.distIndex -= self.kindsShown
         self.draw_statistics(self.selected_btn)
 
     def goRight(self):
+        print('going east')
         self.distIndex += self.kindsShown
         self.draw_statistics(self.selected_btn)
 
-    def refreshSpec(self):
+    def refresh(self):
         species = self.databaseConnector.getSpecies()
         species.append(self.ALL_LABEL)
         species.reverse()  # ALL_LABEL comes first
-        self.specInput = QHintCombo(items=species, parent=self)
-        self.specInput.setGeometry(10, 550, 180, 25)
-        self.specInput.currentIndexChanged.connect(lambda: self.draw_statistics(self.selected_btn))
+        self.specInput.setItems(species)
